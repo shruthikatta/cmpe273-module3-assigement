@@ -1,0 +1,15 @@
+REST Order Service on :8000 -> http://localhost:8001 (timeout=2.0s)
+ * Serving Flask app 'order_service'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:8000
+Press CTRL+C to quit
+127.0.0.1 - - [12/Oct/2026 23:45:45] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [12/Oct/2026 23:45:45] "POST /orders HTTP/1.1" 201 -
+127.0.0.1 - - [12/Oct/2026 23:45:45] "POST /orders HTTP/1.1" 409 -
+127.0.0.1 - - [12/Oct/2026 23:45:45] "POST /orders HTTP/1.1" 404 -
+127.0.0.1 - - [12/Oct/2026 23:45:45] "POST /orders HTTP/1.1" 400 -
+[2026-10-12 23:45:48,032] ERROR in order_service: Inventory check timed out after 2.0s
+127.0.0.1 - - [12/Oct/2026 23:45:48] "POST /orders HTTP/1.1" 504 -
+127.0.0.1 - - [12/Oct/2026 23:45:48] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [12/Oct/2026 23:45:48] "POST /orders HTTP/1.1" 201 -

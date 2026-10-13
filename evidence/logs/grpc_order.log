@@ -1,0 +1,18 @@
+gRPC Order Service on :8002 -> localhost:50051 (deadline=2.0s)
+ * Serving Flask app 'order_service'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:8002
+Press CTRL+C to quit
+127.0.0.1 - - [12/Oct/2026 23:45:48] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [12/Oct/2026 23:45:48] "POST /orders HTTP/1.1" 201 -
+[2026-10-12 23:45:48,469] ERROR in order_service: Inventory RPC failed: FAILED_PRECONDITION - insufficient stock for 'laptop': requested 5, in stock 2
+127.0.0.1 - - [12/Oct/2026 23:45:48] "POST /orders HTTP/1.1" 409 -
+[2026-10-12 23:45:48,475] ERROR in order_service: Inventory RPC failed: NOT_FOUND - item 'unicorn' not found
+127.0.0.1 - - [12/Oct/2026 23:45:48] "POST /orders HTTP/1.1" 404 -
+[2026-10-12 23:45:48,482] ERROR in order_service: Inventory RPC failed: INVALID_ARGUMENT - quantity must be a positive integer
+127.0.0.1 - - [12/Oct/2026 23:45:48] "POST /orders HTTP/1.1" 400 -
+[2026-10-12 23:45:52,706] ERROR in order_service: Inventory RPC failed: DEADLINE_EXCEEDED - Deadline Exceeded
+127.0.0.1 - - [12/Oct/2026 23:45:52] "POST /orders HTTP/1.1" 504 -
+127.0.0.1 - - [12/Oct/2026 23:45:52] "GET /health HTTP/1.1" 200 -
+127.0.0.1 - - [12/Oct/2026 23:45:55] "POST /orders HTTP/1.1" 201 -

@@ -1,0 +1,3 @@
+gRPC Inventory Service on :50051 (delay=5.0s)
+2026-10-12 23:45:48,656 WARNING inventory-grpc: Injecting artificial delay of 5.0s
+2026-10-12 23:45:50,701 WARNING inventory-grpc: Injecting artificial delay of 5.0s

@@ -1,0 +1,137 @@
+################ REST VERSION ################
+== Success ==
+
+$ curl -s -w '\nHTTP %{http_code}\n' -X POST http://localhost:8001/inventory/check -H 'Content-Type: application/json' -d '{"item_id":"apple","quantity":3}'
+{"available":true,"in_stock":10,"item_id":"apple","requested":3}
+
+HTTP 200
+
+
+$ order 8000 '{"item_id":"apple","quantity":3}'
+{"inventory":{"available":true,"in_stock":10,"item_id":"apple","requested":3},"item_id":"apple","quantity":3,"status":"CONFIRMED"}
+
+HTTP 201  (0.006135s)
+
+== Insufficient stock / unknown item / bad input ==
+
+$ order 8000 '{"item_id":"laptop","quantity":5}'
+{"inventory":{"available":false,"error":"insufficient stock","in_stock":2,"item_id":"laptop","requested":5},"status":"REJECTED"}
+
+HTTP 409  (0.002192s)
+
+
+$ order 8000 '{"item_id":"unicorn","quantity":1}'
+{"inventory":{"error":"item 'unicorn' not found"},"status":"REJECTED"}
+
+HTTP 404  (0.002281s)
+
+
+$ order 8000 '{"item_id":"apple","quantity":0}'
+{"inventory":{"error":"quantity must be a positive integer"},"status":"REJECTED"}
+
+HTTP 400  (0.002129s)
+
+== Timeout: restart Inventory with a 5s delay (Order timeout = 2s) ==
+
+$ order 8000 '{"item_id":"apple","quantity":3}'
+{"error":"inventory service timed out after 2.0s","status":"FAILED"}
+
+HTTP 504  (2.004663s)
+
+== Order Service still running after the timeout ==
+
+$ ps -p 87963 -o pid=,command=
+87963 .venv/bin/python rest/order_service.py
+
+
+$ curl -s -w '\nHTTP %{http_code}\n' http://localhost:8000/health
+{"service":"order-service-rest","status":"ok"}
+
+HTTP 200
+
+== Remove the delay; the SAME Order Service process (87963) serves new orders ==
+
+$ order 8000 '{"item_id":"banana","quantity":1}'
+{"inventory":{"available":true,"in_stock":5,"item_id":"banana","requested":1},"item_id":"banana","quantity":1,"status":"CONFIRMED"}
+
+HTTP 201  (0.003329s)
+
+
+$ ps -p 87963 -o pid=,command=
+87963 .venv/bin/python rest/order_service.py
+
+################ gRPC VERSION ################
+== Success ==
+
+$ .venv/bin/python grpc_version/client.py apple 3
+Request  -> CheckInventory({item_id: 'apple', quantity: 3}) deadline=2.0s
+Response <- OK
+item_id: "apple"
+requested: 3
+in_stock: 10
+available: true
+
+
+$ order 8002 '{"item_id":"apple","quantity":3}'
+{"inventory":{"available":true,"in_stock":10,"item_id":"apple","requested":3},"item_id":"apple","quantity":3,"status":"CONFIRMED"}
+
+HTTP 201  (0.002110s)
+
+== Insufficient stock / unknown item / bad input ==
+
+$ .venv/bin/python grpc_version/client.py laptop 5
+Request  -> CheckInventory({item_id: 'laptop', quantity: 5}) deadline=2.0s
+Response <- FAILED_PRECONDITION: insufficient stock for 'laptop': requested 5, in stock 2
+
+
+$ order 8002 '{"item_id":"laptop","quantity":5}'
+{"error":"insufficient stock for 'laptop': requested 5, in stock 2","grpc_code":"FAILED_PRECONDITION","status":"REJECTED"}
+
+HTTP 409  (0.001335s)
+
+
+$ order 8002 '{"item_id":"unicorn","quantity":1}'
+{"error":"item 'unicorn' not found","grpc_code":"NOT_FOUND","status":"REJECTED"}
+
+HTTP 404  (0.000941s)
+
+
+$ order 8002 '{"item_id":"apple","quantity":0}'
+{"error":"quantity must be a positive integer","grpc_code":"INVALID_ARGUMENT","status":"REJECTED"}
+
+HTTP 400  (0.001188s)
+
+== Deadline: restart Inventory with a 5s delay (Order deadline = 2s) ==
+
+$ .venv/bin/python grpc_version/client.py apple 3 2
+Request  -> CheckInventory({item_id: 'apple', quantity: 3}) deadline=2.0s
+Response <- DEADLINE_EXCEEDED: Deadline Exceeded
+
+
+$ order 8002 '{"item_id":"apple","quantity":3}'
+{"error":"Deadline Exceeded","grpc_code":"DEADLINE_EXCEEDED","status":"FAILED"}
+
+HTTP 504  (2.007985s)
+
+== Order Service still running after the deadline failure ==
+
+$ ps -p 87999 -o pid=,command=
+87999 .venv/bin/python grpc_version/order_service.py
+
+
+$ curl -s -w '\nHTTP %{http_code}\n' http://localhost:8002/health
+{"service":"order-service-grpc","status":"ok"}
+
+HTTP 200
+
+== Remove the delay; the SAME Order Service process (87999) serves new orders ==
+
+$ order 8002 '{"item_id":"banana","quantity":1}'
+{"inventory":{"available":true,"in_stock":5,"item_id":"banana","requested":1},"item_id":"banana","quantity":1,"status":"CONFIRMED"}
+
+HTTP 201  (0.001986s)
+
+
+$ ps -p 87999 -o pid=,command=
+87999 .venv/bin/python grpc_version/order_service.py
+

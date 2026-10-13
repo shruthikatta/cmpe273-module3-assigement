@@ -1,0 +1,7 @@
+REST Inventory Service on :8001 (delay=5.0s)
+ * Serving Flask app 'inventory_service'
+ * Debug mode: off
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:8001
+Press CTRL+C to quit
+[2026-10-12 23:45:46,031] WARNING in inventory_service: Injecting artificial delay of 5.0s
