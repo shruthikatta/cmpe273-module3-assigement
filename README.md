@@ -315,6 +315,10 @@ $ ps -p 87999 -o pid=,command=
 
 The full Order Service logs show the sequence `201 → 409 → 404 → 400 → 504 (timeout/deadline) → health 200 → 201` within one process: [`rest_order.log`](evidence/logs/rest_order.log), [`grpc_order.log`](evidence/logs/grpc_order.log).
 
+<img width="715" height="186" alt="Screenshot 2026-10-12 at 11 59 56 PM" src="https://github.com/user-attachments/assets/1c07e312-dcef-4574-bd2a-12f5c8ee92c3" />
+<img width="724" height="534" alt="Screenshot 2026-10-13 at 12 01 41 AM" src="https://github.com/user-attachments/assets/ac15b7da-3406-4602-837b-0b7677eebc43" />
+
+
 ---
 
 ## REST vs. gRPC comparison
